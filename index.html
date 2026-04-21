@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>合同会社変更登記 書類自動生成ツール</title>
+<style>
+:root { color-scheme: light; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+  background: #f5f7fa;
+  color: #222;
+  line-height: 1.6;
+  padding: 20px;
+}
+
+.container { max-width: 1100px; margin: 0 auto; }
+
+.header {
+  background: linear-gradient(135deg, #1F4E78 0%, #2E75B6 100%);
+  color: white;
+  padding: 24px 28px;
+  border-radius: 10px 10px 0 0;
+}
+.header h1 { font-size: 22px; margin-bottom: 6px; }
+.header p { font-size: 14px; opacity: 0.95; }
+
+.form-card {
+  background: white;
+  padding: 28px;
+  border-radius: 0 0 10px 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  margin-bottom: 30px;
+}
+
+.toolbar {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 14px 18px;
+  background: #F8FAFC;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  align-items: center;
+}
+.toolbar-label { font-size: 13px; color: #555; font-weight: bold; margin-right: 4px; }
+.toolbar-btn {
+  padding: 8px 14px;
+  background: white;
+  border: 1.5px solid #CBD5E1;
+  color: #334155;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: bold;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.toolbar-btn:hover { background: #EFF6FF; border-color: #2E75B6; color: #1F4E78; }
+.toolbar-btn.danger { color: #991B1B; border-color: #FCA5A5; }
+.toolbar-btn.danger:hover { background: #FEE2E2; border-color: #EF4444; }
+.toolbar-btn.sample { background: #FFF7ED; border-color: #FDBA74; color: #9A3412; }
+.toolbar-btn.sample:hover { background: #FFEDD5; }
+
+.section-title {
+  font-size: 16px;
+  font-weight: bold;
+  color: #1F4E78;
+  margin: 22px 0 12px 0;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #2E75B6;
+}
+.section-title:first-child { margin-top: 0; }
+.section-title .count {
+  font-size: 12px;
+  color: #666;
+  font-weight: normal;
+  margin-left: 8px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.form-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+.form-grid.full { grid-template-columns: 1fr; }
+
+.form-field { display: flex; flex-direction: column; }
+.form-field.full { grid-column: 1 / -1; }
+.form-field label {
+  font-size: 13px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 5px;
+}
+.form-field label .req { color: #C00000; margin-left: 4px; }
+.form-field label .hint { font-weight: normal; color: #888; font-size: 11px; margin-left: 6px; }
+
+.form-field input, .form-field textarea {
+  padding: 10px 12px;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 5px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  background: white;
+}
+.form-field input:focus, .form-field textarea:focus {
+  outline: none;
+  border-color: #2E75B6;
+  box-shadow: 0 0 0 3px rgba(46,117,182,0.15);
+}
+
+.action-bar {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin: 24px 0;
+  flex-wrap: wrap;
+}
+.btn {
+  padding: 12px 28px;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.btn-primary { background: #1F4E78; color: white; }
+.btn-primary:hover { background: #2E75B6; }
+.btn-secondary { background: #6B7280; color: white; }
+.btn-secondary:hover { background: #4B5563; }
+
+.tab-nav {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 0;
+  border-bottom: 2px solid #1F4E78;
+}
+.tab-btn {
+  padding: 10px 20px;
+  background: #E5E7EB;
+  border: none;
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  font-family: inherit;
+  color: #555;
+}
+.tab-btn.active { background: #1F4E78; color: white; }
+
+.doc-wrap {
+  background: white;
+  padding: 40px 60px;
+  min-height: 800px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  font-family: "Yu Mincho", "Hiragino Mincho ProN", serif;
+  color: #000;
+  line-height: 2.0;
+  font-size: 14px;
+}
+.doc-wrap.hidden { display: none; }
+
+.doc-title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  letter-spacing: 0.5em;
+  margin: 40px 0 48px 0;
+}
+.doc-line { margin-bottom: 14px; }
+.doc-line.indent { padding-left: 2em; }
+.doc-line.strong-indent { padding-left: 4em; }
+.doc-line.big-space { margin-bottom: 28px; }
+.doc-line.date-line { margin: 40px 0 30px 0; }
+.doc-line.company-end { margin-top: 50px; }
+.doc-line.signature { margin-top: 16px; padding-left: 1em; }
+.doc-line.right { text-align: right; }
+
+.highlight {
+  background: #FFF2CC;
+  padding: 0 4px;
+  border-radius: 2px;
+}
+.highlight.empty {
+  color: #999;
+  font-style: italic;
+}
+
+.seal-circle {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid #C00000;
+  border-radius: 50%;
+  color: #C00000;
+  font-size: 10px;
+  text-align: center;
+  line-height: 36px;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+.guide-note {
+  background: #EFF6FF;
+  border-left: 4px solid #2E75B6;
+  padding: 12px 16px;
+  margin: 16px 0;
+  font-size: 13px;
+  color: #1F4E78;
+  border-radius: 0 4px 4px 0;
+}
+.guide-note.warn {
+  background: #FEF3C7;
+  border-left-color: #D97706;
+  color: #78350F;
+}
+
+.status {
+  padding: 12px;
+  background: #D1FAE5;
+  color: #065F46;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 13px;
+  display: none;
+  text-align: center;
+  font-weight: bold;
+}
+.status.show { display: block; }
+.status.error { background: #FEE2E2; color: #991B1B; }
+
+.file-input-hidden { display: none; }
+
+.input-counter {
+  font-size: 11px;
+  color: #888;
+  text-align: right;
+  margin-top: 20px;
+  font-style: italic;
+}
+
+@media print {
+  body { background: white; padding: 0; }
+  .no-print { display: none !important; }
+  .doc-wrap {
+    box-shadow: none;
+    padding: 20mm;
+    min-height: 0;
+    page-break-after: always;
+  }
+  .doc-wrap:last-child { page-break-after: auto; }
+  .doc-wrap.hidden { display: block !important; }
+  .highlight { background: none; padding: 0; }
+  .tab-nav { display: none; }
+}
+
+@media (max-width: 768px) {
+  .form-grid, .form-grid.three { grid-template-columns: 1fr; }
+  .doc-wrap { padding: 30px 25px; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- ========== フォーム入力エリア ========== -->
+  <div class="no-print">
+    <div class="header">
+      <h1>合同会社変更登記 書類自動生成ツール</h1>
+      <p>アンケート形式で情報を入力すると、同意書・就任承諾書・辞任届が自動生成されます。印刷・PDF出力・入力データの保存/読込に対応。</p>
+    </div>
+
+    <div class="form-card">
+
+      <!-- ツールバー：保存・読込・クリア -->
+      <div class="toolbar">
+        <span class="toolbar-label">📁 データ管理：</span>
+        <button class="toolbar-btn" onclick="saveProfile()">💾 入力データを保存</button>
+        <button class="toolbar-btn" onclick="document.getElementById('fileInput').click()">📂 保存データを読込</button>
+        <input type="file" id="fileInput" class="file-input-hidden" accept=".json" onchange="loadProfile(event)">
+        <button class="toolbar-btn sample" onclick="loadSample()">📝 サンプル入力</button>
+        <button class="toolbar-btn danger" onclick="clearAll()">🗑️ 入力クリア</button>
+      </div>
+
+      <div class="guide-note">
+        <strong>💡 使い方のコツ：</strong>案件ごとに「入力データを保存」しておけば、次回同じ会社の書類を作るときに「保存データを読込」で一瞬で復元できます。保存したJSONファイルは案件フォルダに保存しておくのがおすすめです。
+      </div>
+
+      <!-- 基本情報 -->
+      <div class="section-title">
+        基本情報（会社）
+        <span class="count">※は必須</span>
+      </div>
+      <div class="form-grid">
+        <div class="form-field full">
+          <label>会社商号 <span class="req">※</span> <span class="hint">(例：合同会社○○○)</span></label>
+          <input type="text" id="company" placeholder="例：合同会社サンプル" oninput="updateAll()">
+        </div>
+        <div class="form-field">
+          <label>会社法人等番号 <span class="hint">(任意・案件管理用)</span></label>
+          <input type="text" id="companyNumber" placeholder="例：1234-56-789012" oninput="updateAll()">
+        </div>
+        <div class="form-field">
+          <label>本店所在地 <span class="hint">(任意・案件管理用)</span></label>
+          <input type="text" id="companyAddress" placeholder="例：東京都千代田区..." oninput="updateAll()">
+        </div>
+      </div>
+
+      <!-- 退任者 -->
+      <div class="section-title">退任する代表社員（辞任者）</div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label>退任者氏名 <span class="req">※</span></label>
+          <input type="text" id="retireName" placeholder="例：山田太郎" oninput="updateAll()">
+        </div>
+        <div class="form-field">
+          <label>退任者住所 <span class="req">※</span></label>
+          <input type="text" id="retireAddress" placeholder="例：東京都新宿区..." oninput="updateAll()">
+        </div>
+      </div>
+
+      <!-- 就任者 -->
+      <div class="section-title">就任する代表社員（新代表）</div>
+      <div class="form-grid">
+        <div class="form-field">
+          <label>就任者氏名 <span class="req">※</span></label>
+          <input type="text" id="joinName" placeholder="例:鈴木花子" oninput="updateAll()">
+        </div>
+        <div class="form-field">
+          <label>就任者住所 <span class="req">※</span> <span class="hint">(印鑑証明書と一致させる)</span></label>
+          <input type="text" id="joinAddress" placeholder="例：大阪府大阪市..." oninput="updateAll()">
+        </div>
+      </div>
+
+      <!-- 金額・日付 -->
+      <div class="section-title">持分・出資・日付</div>
+      <div class="form-grid three">
+        <div class="form-field">
+          <label>譲受持分額 <span class="req">※</span> <span class="hint">(例：10万円)</span></label>
+          <input type="text" id="shareAmount" placeholder="例：10万円" oninput="updateAll()">
+        </div>
+        <div class="form-field">
+          <label>出資金額（定款記載用） <span class="req">※</span></label>
+          <input type="text" id="capitalAmount" placeholder="例：100,000円" oninput="updateAll()">
+        </div>
+        <div class="form-field">
+          <label>変更年月日（令和）<span class="req">※</span></label>
+          <input type="text" id="dateString" placeholder="例：8年4月8日" oninput="updateAll()">
+        </div>
+      </div>
+
+      <!-- 定款条文 -->
+      <div class="section-title">定款条文番号</div>
+      <div class="form-grid three">
+        <div class="form-field">
+          <label>社員の氏名等（条文番号）</label>
+          <input type="text" id="article6" value="6" oninput="updateAll()">
+        </div>
+        <div class="form-field">
+          <label>業務執行社員（条文番号）</label>
+          <input type="text" id="article8" value="8" oninput="updateAll()">
+        </div>
+        <div class="form-field">
+          <label>代表社員（条文番号）</label>
+          <input type="text" id="article9" value="9" oninput="updateAll()">
+        </div>
+      </div>
+      <div class="guide-note warn">
+        ⚠️ 定款の条文番号は会社によって異なります。実際の定款を確認して正しい条番号を入力してください（デフォルトは第6・第8・第9条）。
+      </div>
+
+      <div class="input-counter" id="inputCounter">入力完了：0 / 9 項目</div>
+
+    </div>
+
+    <div id="status" class="status"></div>
+
+    <!-- アクション -->
+    <div class="action-bar">
+      <button class="btn btn-primary" onclick="window.print()">🖨️ 3書類すべてを印刷</button>
+      <button class="btn btn-secondary" onclick="printCurrent()">現在表示中のみ印刷</button>
+      <button class="btn btn-secondary" onclick="copyCurrent()">テキストをコピー</button>
+    </div>
+
+    <!-- タブ -->
+    <div class="tab-nav">
+      <button class="tab-btn active" onclick="showTab('consent', event)">① 同意書</button>
+      <button class="tab-btn" onclick="showTab('acceptance', event)">② 就任承諾書</button>
+      <button class="tab-btn" onclick="showTab('resignation', event)">③ 辞任届</button>
+    </div>
+  </div>
+
+  <!-- ========== 書類プレビュー：同意書 ========== -->
+  <div class="doc-wrap" id="doc-consent">
+    <div class="doc-title">同　意　書</div>
+
+    <div class="doc-line">
+      １．業務執行社員 <span class="highlight" id="p-retireName1"></span> が令和<span class="highlight" id="p-date1"></span>に退社し、業務執行社員の持分金 <span class="highlight" id="p-share1"></span> 全部を <span class="highlight" id="p-joinName1"></span> が同日譲受け、当会社の有限責任社員として加入すること。
+    </div>
+
+    <div class="doc-line">１．当会社の業務執行社員として、次の者が加入する。</div>
+    <div class="doc-line strong-indent big-space">業務執行社員　<span class="highlight" id="p-joinName2"></span></div>
+
+    <div class="doc-line">１．当会社の代表社員は下記の者とする。</div>
+    <div class="doc-line strong-indent"><span class="highlight" id="p-joinAddr1"></span></div>
+    <div class="doc-line strong-indent big-space">代表社員　<span class="highlight" id="p-joinName3"></span></div>
+
+    <div class="doc-line">１．定款第<span class="highlight" id="p-art6"></span>条を次のように改める。</div>
+    <div class="doc-line strong-indent">第<span class="highlight" id="p-art6b"></span>条　社員の氏名又は名称、住所、及び出資の価額並びに責任は次のとおりである。</div>
+    <div class="doc-line strong-indent">金<span class="highlight" id="p-capital1"></span>　有限責任社員　<span class="highlight" id="p-joinName4"></span></div>
+    <div class="doc-line strong-indent big-space"><span class="highlight" id="p-joinAddr2"></span></div>
+
+    <div class="doc-line">１．定款第<span class="highlight" id="p-art8"></span>条を次のように改める。</div>
+    <div class="doc-line strong-indent">第<span class="highlight" id="p-art8b"></span>条　以下の者を業務執行社員とし、当会社の業務を執行するものとする。</div>
+    <div class="doc-line strong-indent big-space">社員　<span class="highlight" id="p-joinName5"></span></div>
+
+    <div class="doc-line">１．定款第<span class="highlight" id="p-art9"></span>条を次のように改める。</div>
+    <div class="doc-line strong-indent">第<span class="highlight" id="p-art9b"></span>条　以下の者を代表社員に定める。</div>
+    <div class="doc-line strong-indent big-space">社員　<span class="highlight" id="p-joinName6"></span></div>
+
+    <div class="doc-line big-space">代表社員　<span class="highlight" id="p-retireName2"></span>　は本日付けで辞任する。</div>
+
+    <div class="doc-line big-space">当会社の社員全員は、上記事項について同意した。</div>
+
+    <div class="doc-line date-line">令和<span class="highlight" id="p-date2"></span></div>
+
+    <div class="doc-line"><span class="highlight" id="p-company1"></span></div>
+
+    <div class="doc-line signature">
+      社員　<span class="highlight" id="p-retireName3"></span>
+      <span class="seal-circle">印</span>
+    </div>
+    <div class="doc-line signature">
+      社員　<span class="highlight" id="p-joinName7"></span>
+      <span class="seal-circle">印</span>
+    </div>
+  </div>
+
+  <!-- ========== 書類プレビュー：就任承諾書 ========== -->
+  <div class="doc-wrap hidden" id="doc-acceptance">
+    <div class="doc-title">就　任　承　諾　書</div>
+
+    <div class="doc-line big-space">
+      私は、令和<span class="highlight" id="a-date1"></span>、貴社の代表社員に定められたので、その就任を承諾します。
+    </div>
+
+    <div class="doc-line date-line">令和<span class="highlight" id="a-date2"></span></div>
+
+    <div class="doc-line"><span class="highlight" id="a-joinAddr"></span></div>
+    <div class="doc-line signature">
+      <span class="highlight" id="a-joinName"></span>
+      <span class="seal-circle">印</span>
+    </div>
+
+    <div class="doc-line company-end"><span class="highlight" id="a-company"></span>　御中</div>
+  </div>
+
+  <!-- ========== 書類プレビュー：辞任届 ========== -->
+  <div class="doc-wrap hidden" id="doc-resignation">
+    <div class="doc-title">辞　任　届</div>
+
+    <div class="doc-line big-space">
+      私は、このたび一身上の都合により、貴社の代表社員を辞任いたしたく、お届けいたします。
+    </div>
+
+    <div class="doc-line date-line">令和<span class="highlight" id="r-date"></span></div>
+
+    <div class="doc-line big-space"><span class="highlight" id="r-company"></span>　御中</div>
+
+    <div class="doc-line"><span class="highlight" id="r-retireAddr"></span></div>
+    <div class="doc-line signature">
+      <span class="highlight" id="r-retireName"></span>
+      <span class="seal-circle">印</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const FIELDS = ["company","companyNumber","companyAddress","retireName","retireAddress","joinName","joinAddress","shareAmount","capitalAmount","dateString","article6","article8","article9"];
+const REQUIRED_FIELDS = ["company","retireName","retireAddress","joinName","joinAddress","shareAmount","capitalAmount","dateString"];
+
+const SAMPLE_DATA = {
+  company: "合同会社サンプル商事",
+  companyNumber: "1234-56-789012",
+  companyAddress: "東京都千代田区丸の内1丁目1番1号",
+  retireName: "山田太郎",
+  retireAddress: "東京都新宿区新宿3丁目10番5号",
+  joinName: "鈴木花子",
+  joinAddress: "大阪府大阪市北区梅田2丁目4番9号",
+  shareAmount: "100万円",
+  capitalAmount: "1,000,000円",
+  dateString: "8年5月1日",
+  article6: "6", article8: "8", article9: "9",
+};
+
+function loadSample() {
+  FIELDS.forEach(f => {
+    const el = document.getElementById(f);
+    if (el) el.value = SAMPLE_DATA[f] || "";
+  });
+  updateAll();
+  showStatus("サンプルデータを読み込みました。書類プレビューをご確認ください。");
+}
+
+function clearAll() {
+  if (!confirm("入力内容をすべてクリアします。よろしいですか？\n（クリア前に「入力データを保存」しておくと後で復元できます）")) return;
+  FIELDS.forEach(f => {
+    const el = document.getElementById(f);
+    if (!el) return;
+    if (f === "article6") el.value = "6";
+    else if (f === "article8") el.value = "8";
+    else if (f === "article9") el.value = "9";
+    else el.value = "";
+  });
+  updateAll();
+  showStatus("入力内容をクリアしました。");
+}
+
+function saveProfile() {
+  const data = {};
+  FIELDS.forEach(f => {
+    const el = document.getElementById(f);
+    data[f] = el ? el.value : "";
+  });
+  data._meta = {
+    exportedAt: new Date().toISOString(),
+    toolVersion: "1.0",
+    docType: "godo-kaisha-representative-change",
+  };
+
+  const company = data.company || "無題";
+  const date = new Date().toISOString().slice(0, 10);
+  const filename = `登記書類_${company}_${date}.json`;
+
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+
+  showStatus(`「${filename}」として保存しました。`);
+}
+
+function loadProfile(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      FIELDS.forEach(f => {
+        const el = document.getElementById(f);
+        if (el && data[f] !== undefined) el.value = data[f];
+      });
+      updateAll();
+      showStatus(`「${file.name}」を読み込みました。`);
+    } catch (err) {
+      showStatus("ファイルの読み込みに失敗しました。JSON形式をご確認ください。", true);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = "";
+}
+
+function v(id, placeholder) {
+  const val = (document.getElementById(id).value || "").trim();
+  return val || placeholder;
+}
+function setText(id, text, isEmpty) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = text;
+  if (isEmpty) el.classList.add("empty"); else el.classList.remove("empty");
+}
+
+function updateAll() {
+  const company = v("company", "【会社商号】");
+  const retireName = v("retireName", "【退任者氏名】");
+  const retireAddress = v("retireAddress", "【退任者住所】");
+  const joinName = v("joinName", "【就任者氏名】");
+  const joinAddress = v("joinAddress", "【就任者住所】");
+  const share = v("shareAmount", "【　】万円");
+  const capital = v("capitalAmount", "【　】円");
+  const dateRaw = document.getElementById("dateString").value.trim();
+  const date = dateRaw || "【　】年【　】月【　】日";
+  const art6 = v("article6", "6");
+  const art8 = v("article8", "8");
+  const art9 = v("article9", "9");
+
+  const isE = (id) => !document.getElementById(id).value.trim();
+
+  setText("p-retireName1", retireName, isE("retireName"));
+  setText("p-retireName2", retireName, isE("retireName"));
+  setText("p-retireName3", retireName, isE("retireName"));
+  setText("p-joinName1", joinName, isE("joinName"));
+  setText("p-joinName2", joinName, isE("joinName"));
+  setText("p-joinName3", joinName, isE("joinName"));
+  setText("p-joinName4", joinName, isE("joinName"));
+  setText("p-joinName5", joinName, isE("joinName"));
+  setText("p-joinName6", joinName, isE("joinName"));
+  setText("p-joinName7", joinName, isE("joinName"));
+  setText("p-joinAddr1", joinAddress, isE("joinAddress"));
+  setText("p-joinAddr2", joinAddress, isE("joinAddress"));
+  setText("p-date1", date, !dateRaw);
+  setText("p-date2", date, !dateRaw);
+  setText("p-share1", share, isE("shareAmount"));
+  setText("p-capital1", capital, isE("capitalAmount"));
+  setText("p-art6", art6, false);
+  setText("p-art6b", art6, false);
+  setText("p-art8", art8, false);
+  setText("p-art8b", art8, false);
+  setText("p-art9", art9, false);
+  setText("p-art9b", art9, false);
+  setText("p-company1", company, isE("company"));
+
+  setText("a-date1", date, !dateRaw);
+  setText("a-date2", date, !dateRaw);
+  setText("a-joinAddr", joinAddress, isE("joinAddress"));
+  setText("a-joinName", joinName, isE("joinName"));
+  setText("a-company", company, isE("company"));
+
+  setText("r-date", date, !dateRaw);
+  setText("r-company", company, isE("company"));
+  setText("r-retireAddr", retireAddress, isE("retireAddress"));
+  setText("r-retireName", retireName, isE("retireName"));
+
+  updateCounter();
+}
+
+function updateCounter() {
+  let filled = 0;
+  REQUIRED_FIELDS.forEach(f => {
+    const el = document.getElementById(f);
+    if (el && el.value.trim()) filled++;
+  });
+  const counter = document.getElementById("inputCounter");
+  if (counter) {
+    counter.textContent = `入力完了：${filled} / ${REQUIRED_FIELDS.length} 項目`;
+    if (filled === REQUIRED_FIELDS.length) {
+      counter.style.color = "#065F46";
+      counter.style.fontWeight = "bold";
+      counter.textContent = `✓ 必須項目すべて入力済み（${filled} / ${REQUIRED_FIELDS.length}）`;
+    } else {
+      counter.style.color = "#888";
+      counter.style.fontWeight = "normal";
+    }
+  }
+}
+
+function showTab(tab, ev) {
+  const map = { consent: "doc-consent", acceptance: "doc-acceptance", resignation: "doc-resignation" };
+  Object.values(map).forEach(id => document.getElementById(id).classList.add("hidden"));
+  document.getElementById(map[tab]).classList.remove("hidden");
+  document.querySelectorAll(".tab-btn").forEach(btn => btn.classList.remove("active"));
+  if (ev && ev.target) ev.target.classList.add("active");
+}
+
+function printCurrent() {
+  const all = document.querySelectorAll(".doc-wrap");
+  const visible = document.querySelector(".doc-wrap:not(.hidden)");
+  all.forEach(d => { if (d !== visible) d.style.display = "none"; });
+  window.print();
+  all.forEach(d => { d.style.display = ""; });
+}
+
+function copyCurrent() {
+  const visible = document.querySelector(".doc-wrap:not(.hidden)");
+  const text = visible.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    showStatus("書類のテキストをクリップボードにコピーしました。");
+  }).catch(() => {
+    showStatus("コピーに失敗しました。ブラウザの権限をご確認ください。", true);
+  });
+}
+
+function showStatus(msg, isError) {
+  const s = document.getElementById("status");
+  s.textContent = msg;
+  s.classList.remove("error");
+  if (isError) s.classList.add("error");
+  s.classList.add("show");
+  setTimeout(() => s.classList.remove("show"), 3500);
+}
+
+updateAll();
+</script>
+</body>
+</html>
